@@ -1,6 +1,8 @@
 $document_root = '/vagrant'
 
-include apache
+require apache
+require phpmysql
+require wordpress
 
 notify { 'Showing machine Facts':
   message => "Machine with ${::memory['system']['total']} of memory and $::processorcount processor/s.

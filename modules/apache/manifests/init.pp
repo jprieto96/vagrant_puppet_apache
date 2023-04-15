@@ -1,11 +1,12 @@
 class apache {
+
   exec { 'apt-update':
     command => '/usr/bin/apt-get update'
   }
   Exec["apt-update"] -> Package <| |>
 
   package { 'apache2':
-    ensure => installed,
+    ensure => installed
   }
 
   service { 'apache2':
@@ -13,5 +14,12 @@ class apache {
     enable => true,
     hasstatus  => true,
     restart => "/usr/sbin/apachectl configtest && /usr/sbin/service apache2 reload",
+    require => Package['apache2']
   }
+
+  notify {'apache2 installed':
+    message => "apache2 package installed and running",
+    require => Service['apache2']
+  }
+  
 }
