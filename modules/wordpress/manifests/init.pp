@@ -34,9 +34,45 @@ class wordpress {
     require => Package['apache2']
   }
 
-  notify {'restart apache2 service':
-    message => "wordpress installed",
-    require => Exec['restart apache2 service']
+  # ----------------------------------------------------------------------
+
+  # Install wordpress
+
+  # create files directory
+  file { 'create files directory in wordpress module':
+    path => "${document_root}/modules/wordpress/files",
+    ensure => 'directory',
+    require => Exec['copy wordpress folder']
+  }
+
+  # First step: install wordpress CLI
+  exec { 'download wp-cli.phar':
+    command => "curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar",
+    cwd => "${document_root}/modules/wordpress/files",
+    path => ['/bin'],
+    require => File['create files directory in wordpress module']
+  }
+
+  file { 'copy wp cli to be able to use ir as a command':
+    path => "/bin/wp",
+    ensure  => present,
+    source => "${document_root}/modules/wordpress/files/wp-cli.phar",
+    owner => 'vagrant',
+    group => 'vagrant',
+    mode => "u+x",
+    require => Exec['download wp-cli.phar']
+  }
+
+  # Second step: install wordpress
+
+  exec { 'install wordpress':
+    command => "wp core install --url=localhost:8080 --title='Jose Prieto' --admin_user=admin --admin_password=root --admin_email=joseprieto9657@gmail.com --allow-root --path=/var/www/html",
+    path => ['/bin'],
+    require => File['copy wp cli to be able to use ir as a command'],
+  }
+
+  notify {'wordpress installed':
+    message => "wordpress installed"
   }
 
 }

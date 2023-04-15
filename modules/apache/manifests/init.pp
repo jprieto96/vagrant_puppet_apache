@@ -9,12 +9,18 @@ class apache {
     ensure => installed
   }
 
+  file { 'Remove index.html to be able to show wordpress blog':
+    path => "/var/www/html/index.html",
+    ensure => absent,
+    require => Package['apache2']
+  }
+
   service { 'apache2':
     ensure => running,
     enable => true,
     hasstatus  => true,
     restart => "/usr/sbin/apachectl configtest && /usr/sbin/service apache2 reload",
-    require => Package['apache2']
+    require => File['Remove index.html to be able to show wordpress blog']
   }
 
   notify {'apache2 installed':
