@@ -1,5 +1,7 @@
 class phpmysql {
 
+  Exec["apt-update"] -> Package <| |>
+
   package { ['mysql-server', 'php8.1', 'libapache2-mod-php8.1', 'php-mysql']:
     ensure => installed
   }
@@ -13,7 +15,7 @@ class phpmysql {
     path => ['/usr/sbin/']
   }
 
-  exec { "set-mysql-password":
+  exec { "set password":
     unless => "mysqladmin -u root -p root status",
     command => "mysqladmin -u root password root",
     require => Service["mysql service is up"],
@@ -24,7 +26,7 @@ class phpmysql {
     path => "${document_root}/script.sql",
     ensure  => present,
     content => template('phpmysql/script.sql.erb'),
-    require => Exec['set-mysql-password']
+    require => Exec['set password']
   }
 
   exec { 'run sql file':

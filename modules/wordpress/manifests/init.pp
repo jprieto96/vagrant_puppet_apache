@@ -1,5 +1,7 @@
 class wordpress {
 
+  Exec["apt-update"] -> Package <| |>
+
   exec { 'download wordpress':
     command => "wget https://wordpress.org/wordpress-6.2.tar.gz",
     cwd => $document_root,
@@ -53,7 +55,7 @@ class wordpress {
     require => File['create files directory in wordpress module']
   }
 
-  file { 'copy wp cli to be able to use ir as a command':
+  file { 'copy wp cli to be able to use it as a command':
     path => "/bin/wp",
     ensure  => present,
     source => "${document_root}/modules/wordpress/files/wp-cli.phar",
@@ -68,7 +70,7 @@ class wordpress {
   exec { 'install wordpress':
     command => "wp core install --url=localhost:8080 --title='Jose Prieto' --admin_user=admin --admin_password=root --admin_email=joseprieto9657@gmail.com --allow-root --path=/var/www/html",
     path => ['/bin'],
-    require => File['copy wp cli to be able to use ir as a command'],
+    require => File['copy wp cli to be able to use it as a command'],
   }
 
   notify {'wordpress installed':
